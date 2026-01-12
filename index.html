@@ -1,170 +1,230 @@
-import React, { useState } from 'react';
-import { MapPin, Utensils, ShoppingCart, CheckCircle2, ExternalLink, Coffee, Search } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokyo Food Map & Guide</title>
+    <!-- ใช้ Tailwind CSS สำหรับการตกแต่ง -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons สำหรับไอคอนสวยๆ -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ซ่อน Scrollbar สำหรับแถบหมวดหมู่ */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* สไตล์สำหรับการคลิกรายการเช็คลิสต์ */
+        .checked-item { background-color: #f0fdf4; border-color: #bbf7d0; }
+        .checked-text { color: #15803d; text-decoration: line-through; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans pb-12">
 
-const App = () => {
-  const [activeTab, setActiveTab] = useState('all');
-  const [checkedItems, setCheckedItems] = useState({});
-
-  const toggleCheck = (id) => {
-    setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const locations = [
-    { id: 'r1', name: 'Ichiran Ramen', area: 'Chains', desc: 'ราเมงข้อสอบ ยอดฮิตตลอดกาล', maps: 'Ichiran Ramen Tokyo' },
-    { id: 'r2', name: 'Hakata Furyu (Ueno)', area: 'Ueno', desc: 'เติมเส้นไม่อั้น (Kaedama)', maps: 'Hakata Furyu Ueno' },
-    { id: 'r3', name: "I'm Donut (Harajuku)", area: 'Harajuku', desc: 'โดนัทแป้งนุ่ม คิวยาวแต่คุ้ม', maps: "I'm Donut Harajuku" },
-    { id: 'r4', name: 'Ramen Hayashida Shinjuku', area: 'Shinjuku', desc: 'ราเมงซุปเป็ด/ไก่ สไตล์ Local', maps: 'Ramen Hayashida Shinjuku' },
-    { id: 'r5', name: 'เนื้อชีสทอดยืดๆ (Asakusa)', area: 'Asakusa', desc: 'Asakusa Menchi ใกล้หน้าวัดอาซากุสะ', maps: 'Asakusa Menchi' },
-    { id: 'r6', name: 'Pain Maison (Shio Pan)', area: 'Asakusa', desc: 'ชิโอะปัง (ขนมปังเกลือ) ต้นตำรับ', maps: 'Pain Maison Asakusa' },
-    { id: 'r7', name: 'Milk Shop Luck', area: 'Akihabara', desc: 'ชานชาลาที่ 5-6 JR Akihabara (Sobu Line)', maps: 'Milk Shop Luck Akihabara' },
-    { id: 'r8', name: 'Saizeriya', area: 'Chains', desc: 'อาหารอิตาเลียนราคาประหยัด มีหลายสาขา', maps: 'Saizeriya Tokyo' },
-    { id: 'r9', name: 'Tsujihan (Tokyo Midtown)', area: 'Roppongi', desc: 'ข้าวหน้าปลาดิบที่ลิซ่าไปกิน (Kaisendon)', maps: 'Tsujihan Tokyo Midtown' },
-    { id: 'r10', name: 'Gyukatsu Motomura', area: 'Ueno / Shinjuku', desc: 'เนื้อชุบแป้งทอดบนหินร้อน', maps: 'Gyukatsu Motomura' },
-    { id: 'r11', name: 'Hama Sushi', area: 'Chains', desc: 'ซูชิสายพานราคาประหยัด', maps: 'Hama Sushi Tokyo' },
-    { id: 'r12', name: 'Shubusen (Ginza)', area: 'Ginza', desc: 'อาหารเซ็ต กลางวันราคา 700 เยน ถูกกว่าเย็น', maps: 'Shubusen Ginza' },
-    { id: 'r13', name: 'Mo-Mo-Paradise', area: 'Shinjuku', desc: 'บุฟเฟต์ชาบูต้นตำรับ (Kabukicho)', maps: 'Mo-Mo-Paradise Shinjuku' },
-    { id: 'r14', name: 'Beef Cutlet (Kawaguchiko)', area: 'Kawaguchiko', desc: 'กิวคัตสึแถวคาวากุจิโกะ', maps: 'Gyukatsu Kawaguchiko' },
-    { id: 'r15', name: 'Sha Bu Yo (Kawa)', area: 'Kawaguchiko', desc: 'บุฟเฟต์ชาบูราคาดี (ประมาณ 900 บาท)', maps: 'Shabuyo Kawaguchiko' },
-    { id: 'r16', name: 'Gusto (Kawa)', area: 'Kawaguchiko', desc: 'Family Restaurant ราคาประหยัด', maps: 'Gusto Kawaguchiko' },
-    { id: 'r17', name: 'Sushi Be', area: 'Local', desc: 'ร้านซูชิใกล้ที่พัก', maps: 'Sushi be Tokyo' },
-    { id: 'r18', name: 'Sushiro (Kawa)', area: 'Kawaguchiko', desc: 'นั่งบัสสีฟ้าป้าย 67 (ห่าง 1.5 กม.)', maps: 'Sushiro Kawaguchiko' },
-    { id: 's1', name: 'Sukiya', area: 'Budget Sets', desc: 'ข้าวหน้าเนื้อเปิด 24 ชม.', maps: 'Sukiya Tokyo' },
-    { id: 's2', name: 'Yoshinoya', area: 'Budget Sets', desc: 'เซ็ตอาหารเช้าดีและคุ้มค่า', maps: 'Yoshinoya Tokyo' },
-    { id: 's3', name: 'Matsuya', area: 'Budget Sets', desc: 'มีซุปมิโซะให้ฟรีในเซ็ต', maps: 'Matsuya Tokyo' },
-  ];
-
-  const conveniItems = [
-    { name: 'Smoothie', brand: '7-11', desc: 'ปั่นสดในตู้' },
-    { name: 'พุดดิ้งตัวดัง', brand: 'All', desc: 'ฝาสีน้ำเงิน/เหลือง' },
-    { name: 'ชามะนาวรูปผู้หญิง', brand: 'All', desc: 'Kirin Afternoon Tea' },
-    { name: 'บิสกิตไวท์ช็อค', brand: '7-11', desc: 'ถุงสีน้ำเงินขาว' },
-    { name: 'ไก่ทอด Karaage-kun', brand: 'Lawson', desc: 'ตู้หน้าเคาน์เตอร์' },
-    { name: 'ไก่เผ็ด FamiChiki', brand: 'FamilyMart', desc: 'ไก่ทอดไม่มีกระดูก' },
-    { name: 'แซนวิชไข่', brand: 'FamilyMart', desc: 'ครีมมี่นุ่มมาก' },
-    { name: 'Calbee Pizza', brand: 'All', desc: 'มันฝรั่งทอดรสพิซซ่า' },
-    { name: 'Nissin ต้มยำกุ้ง', brand: 'All', desc: 'รสชาติเข้มข้นแบบไทย' },
-    { name: "Welch's Grape", brand: 'All', desc: 'น้ำองุ่นม่วงเข้มข้น' },
-    { name: 'ข้าวปั้นคุณป้ายิ้ม', brand: 'FamilyMart', desc: 'โอนิกิริยอดฮิต' },
-    { name: 'นมสตรอว์เบอร์รี', brand: 'FamilyMart', desc: 'มีเนื้อสตรอว์เบอร์รี' },
-    { name: 'Souffle Pudding', brand: 'FamilyMart', desc: 'ขนมอันดับ 1 ของแฟมิลี่มาร์ท' },
-  ];
-
-  const areas = ['all', 'Ueno', 'Shinjuku', 'Asakusa', 'Kawaguchiko', 'Harajuku', 'Chains', 'Budget Sets'];
-
-  const filteredLocations = activeTab === 'all' 
-    ? locations 
-    : locations.filter(loc => loc.area === activeTab || loc.area.includes(activeTab));
-
-  const openMaps = (query) => {
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank');
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-12">
-      {/* Header */}
-      <div className="bg-red-600 text-white p-6 shadow-lg sticky top-0 z-10">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <MapPin size={24} /> Tokyo Food Map & Guide
+    <!-- ส่วนหัว (Header) -->
+    <div class="bg-red-600 text-white p-6 shadow-lg sticky top-0 z-20">
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+            <i data-lucide="map-pin"></i> Tokyo Food Map & Guide
         </h1>
-        <p className="text-red-100 text-sm mt-1">รวมลายแทงร้านอาหารและของกินญี่ปุ่น</p>
-      </div>
-
-      {/* Tabs / Filters */}
-      <div className="flex overflow-x-auto p-4 gap-2 no-scrollbar bg-white border-b sticky top-[76px] z-10">
-        {areas.map(area => (
-          <button
-            key={area}
-            onClick={() => setActiveTab(area)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-              activeTab === area ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            {area.charAt(0).toUpperCase() + area.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      <div className="max-w-md mx-auto p-4 space-y-8">
-        {/* Restaurants List */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <Utensils className="text-red-600" size={20} />
-            <h2 className="text-lg font-bold text-slate-800">ร้านอาหาร ({filteredLocations.length})</h2>
-          </div>
-          <div className="space-y-3">
-            {filteredLocations.map(loc => (
-              <div key={loc.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold rounded uppercase">
-                        {loc.area}
-                      </span>
-                      <h3 className="font-bold text-slate-800">{loc.name}</h3>
-                    </div>
-                    <p className="text-sm text-slate-500 mt-1">{loc.desc}</p>
-                  </div>
-                  <button 
-                    onClick={() => openMaps(loc.maps)}
-                    className="ml-4 p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100"
-                    title="Open in Maps"
-                  >
-                    <ExternalLink size={18} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Convenience Store Items */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-2 mb-4">
-            <ShoppingCart className="text-green-600" size={20} />
-            <h2 className="text-lg font-bold text-slate-800">7-11, Lawson, FamilyMart</h2>
-          </div>
-          <div className="space-y-2">
-            {conveniItems.map((item, index) => (
-              <div 
-                key={index}
-                onClick={() => toggleCheck(`item-${index}`)}
-                className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
-                  checkedItems[`item-${index}`] 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-slate-50 border-transparent hover:border-slate-200'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`transition-colors ${checkedItems[`item-${index}`] ? 'text-green-600' : 'text-slate-300'}`}>
-                    <CheckCircle2 size={20} />
-                  </div>
-                  <div>
-                    <p className={`text-sm font-medium ${checkedItems[`item-${index}`] ? 'text-green-700 line-through' : 'text-slate-700'}`}>
-                      {item.name}
-                    </p>
-                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{item.brand} • {item.desc}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Tips section */}
-        <section className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-          <h3 className="text-yellow-800 font-bold text-sm mb-2 flex items-center gap-2">
-            💡 ข้อแนะนำเพิ่มเติม
-          </h3>
-          <ul className="text-xs text-yellow-700 space-y-1 list-disc pl-4">
-            <li><strong>Tsujihan:</strong> เตรียมตัวเข้าคิวนานหน่อย หรือไปสาขาในห้างช่วงเปิด</li>
-            <li><strong>JR Akihabara:</strong> ร้านนม Milk Shop Luck อยู่บนชานชาลา ต้องใช้บัตรแตะเข้าไป</li>
-            <li><strong>Kawaguchiko:</strong> แนะนำให้เช็ครอบรถบัสสีฟ้า (Blue Line) สำหรับไปร้านซูชิโร่</li>
-            <li><strong>Souffle Pudding:</strong> ใน FamilyMart มักจะวางอยู่โซนตู้แช่เย็นใกล้เคาน์เตอร์</li>
-          </ul>
-        </section>
-      </div>
+        <p class="text-red-100 text-sm mt-1">รวมลายแทงร้านอาหารและของกินญี่ปุ่น</p>
     </div>
-  );
-};
 
-export default App;
+    <!-- แถบหมวดหมู่ (Tabs / Filters) -->
+    <div id="tabs-container" class="flex overflow-x-auto p-4 gap-2 no-scrollbar bg-white border-b sticky top-[76px] z-10">
+        <!-- ปุ่มหมวดหมู่จะถูกใส่ที่นี่ด้วย JavaScript -->
+    </div>
+
+    <div class="max-w-md mx-auto p-4 space-y-8">
+        
+        <!-- รายชื่อร้านอาหาร (Restaurants Section) -->
+        <section>
+            <div class="flex items-center gap-2 mb-4 text-slate-800">
+                <i data-lucide="utensils" class="text-red-600"></i>
+                <h2 class="text-lg font-bold" id="restaurant-count">ร้านอาหาร</h2>
+            </div>
+            <div id="restaurant-list" class="space-y-3">
+                <!-- รายการร้านอาหารจะถูกใส่ที่นี่ -->
+            </div>
+        </section>
+
+        <!-- รายการของกินในร้านสะดวกซื้อ (Convenience Store Section) -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+            <div class="flex items-center gap-2 mb-4 text-slate-800">
+                <i data-lucide="shopping-cart" class="text-green-600"></i>
+                <h2 class="text-lg font-bold">7-11, Lawson, FamilyMart</h2>
+            </div>
+            <div id="conveni-list" class="space-y-2">
+                <!-- รายการของกินจะถูกใส่ที่นี่ -->
+            </div>
+        </section>
+
+        <!-- ข้อแนะนำ (Tips Section) -->
+        <section class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <h3 class="text-yellow-800 font-bold text-sm mb-2 flex items-center gap-2">
+                <i data-lucide="info" size="16"></i> ข้อแนะนำเพิ่มเติม
+            </h3>
+            <ul class="text-xs text-yellow-700 space-y-1 list-disc pl-4">
+                <li><strong>Tsujihan:</strong> เตรียมตัวเข้าคิวนานหน่อย หรือไปสาขาในห้างช่วงเปิด</li>
+                <li><strong>JR Akihabara:</strong> ร้านนม Milk Shop Luck อยู่บนชานชาลา ต้องใช้บัตรแตะเข้าไป</li>
+                <li><strong>Kawaguchiko:</strong> แนะนำให้เช็ครอบรถบัสสีฟ้า (Blue Line) สำหรับไปร้านซูชิโร่</li>
+                <li><strong>Souffle Pudding:</strong> ใน FamilyMart มักจะวางอยู่โซนตู้แช่เย็นใกล้เคาน์เตอร์</li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        // ข้อมูลร้านอาหาร
+        const locations = [
+            { id: 'r1', name: 'Ichiran Ramen', area: 'Chains', desc: 'ราเมงข้อสอบ ยอดฮิตตลอดกาล', maps: 'Ichiran Ramen Tokyo' },
+            { id: 'r2', name: 'Hakata Furyu (Ueno)', area: 'Ueno', desc: 'เติมเส้นไม่อั้น (Kaedama)', maps: 'Hakata Furyu Ueno' },
+            { id: 'r3', name: "I'm Donut (Harajuku)", area: 'Harajuku', desc: 'โดนัทแป้งนุ่ม คิวยาวแต่คุ้ม', maps: "I'm Donut Harajuku" },
+            { id: 'r4', name: 'Ramen Hayashida Shinjuku', area: 'Shinjuku', desc: 'ราเมงซุปเป็ด/ไก่ สไตล์ Local', maps: 'Ramen Hayashida Shinjuku' },
+            { id: 'r5', name: 'เนื้อชีสทอดยืดๆ (Asakusa)', area: 'Asakusa', desc: 'Asakusa Menchi ใกล้หน้าวัดอาซากุสะ', maps: 'Asakusa Menchi' },
+            { id: 'r6', name: 'Pain Maison (Shio Pan)', area: 'Asakusa', desc: 'ชิโอะปัง (ขนมปังเกลือ) ต้นตำรับ', maps: 'Pain Maison Asakusa' },
+            { id: 'r7', name: 'Milk Shop Luck', area: 'Akihabara', desc: 'ชานชาลาที่ 5-6 JR Akihabara (Sobu Line)', maps: 'Milk Shop Luck Akihabara' },
+            { id: 'r8', name: 'Saizeriya', area: 'Chains', desc: 'อาหารอิตาเลียนราคาประหยัด มีหลายสาขา', maps: 'Saizeriya Tokyo' },
+            { id: 'r9', name: 'Tsujihan (Tokyo Midtown)', area: 'Roppongi', desc: 'ข้าวหน้าปลาดิบที่ลิซ่าไปกิน (Kaisendon)', maps: 'Tsujihan Tokyo Midtown' },
+            { id: 'r10', name: 'Gyukatsu Motomura', area: 'Ueno / Shinjuku', desc: 'เนื้อชุบแป้งทอดบนหินร้อน', maps: 'Gyukatsu Motomura' },
+            { id: 'r11', name: 'Hama Sushi', area: 'Chains', desc: 'ซูชิสายพานราคาประหยัด', maps: 'Hama Sushi Tokyo' },
+            { id: 'r12', name: 'Shubusen (Ginza)', area: 'Ginza', desc: 'อาหารเซ็ต กลางวันราคา 700 เยน ถูกกว่าเย็น', maps: 'Shubusen Ginza' },
+            { id: 'r13', name: 'Mo-Mo-Paradise', area: 'Shinjuku', desc: 'บุฟเฟต์ชาบูต้นตำรับ (Kabukicho)', maps: 'Mo-Mo-Paradise Shinjuku' },
+            { id: 'r14', name: 'Beef Cutlet (Kawaguchiko)', area: 'Kawaguchiko', desc: 'กิวคัตสึแถวคาวากุจิโกะ', maps: 'Gyukatsu Kawaguchiko' },
+            { id: 'r15', name: 'Sha Bu Yo (Kawa)', area: 'Kawaguchiko', desc: 'บุฟเฟต์ชาบูราคาดี (ประมาณ 900 บาท)', maps: 'Shabuyo Kawaguchiko' },
+            { id: 'r16', name: 'Gusto (Kawa)', area: 'Kawaguchiko', desc: 'Family Restaurant ราคาประหยัด', maps: 'Gusto Kawaguchiko' },
+            { id: 'r17', name: 'Sushi Be', area: 'Local', desc: 'ร้านซูชิใกล้ที่พัก', maps: 'Sushi be Tokyo' },
+            { id: 'r18', name: 'Sushiro (Kawa)', area: 'Kawaguchiko', desc: 'นั่งบัสสีฟ้าป้าย 67 (ห่าง 1.5 กม.)', maps: 'Sushiro Kawaguchiko' },
+            { id: 's1', name: 'Sukiya', area: 'Budget Sets', desc: 'ข้าวหน้าเนื้อเปิด 24 ชม.', maps: 'Sukiya Tokyo' },
+            { id: 's2', name: 'Yoshinoya', area: 'Budget Sets', desc: 'เซ็ตอาหารเช้าดีและคุ้มค่า', maps: 'Yoshinoya Tokyo' },
+            { id: 's3', name: 'Matsuya', area: 'Budget Sets', desc: 'มีซุปมิโซะให้ฟรีในเซ็ต', maps: 'Matsuya Tokyo' },
+        ];
+
+        // ข้อมูลร้านสะดวกซื้อ
+        const conveniItems = [
+            { name: 'Smoothie', brand: '7-11', desc: 'ปั่นสดในตู้' },
+            { name: 'พุดดิ้งตัวดัง', brand: 'All', desc: 'ฝาสีน้ำเงิน/เหลือง' },
+            { name: 'ชามะนาวรูปผู้หญิง', brand: 'All', desc: 'Kirin Afternoon Tea' },
+            { name: 'บิสกิตไวท์ช็อค', brand: '7-11', desc: 'ถุงสีน้ำเงินขาว' },
+            { name: 'ไก่ทอด Karaage-kun', brand: 'Lawson', desc: 'ตู้หน้าเคาน์เตอร์' },
+            { name: 'ไก่เผ็ด FamiChiki', brand: 'FamilyMart', desc: 'ไก่ทอดไม่มีกระดูก' },
+            { name: 'แซนวิชไข่', brand: 'FamilyMart', desc: 'ครีมมี่นุ่มมาก' },
+            { name: 'Calbee Pizza', brand: 'All', desc: 'มันฝรั่งทอดรสพิซซ่า' },
+            { name: 'Nissin ต้มยำกุ้ง', brand: 'All', desc: 'รสชาติเข้มข้นแบบไทย' },
+            { name: "Welch's Grape", brand: 'All', desc: 'น้ำองุ่นม่วงเข้มข้น' },
+            { name: 'ข้าวปั้นคุณป้ายิ้ม', brand: 'FamilyMart', desc: 'โอนิกิริยอดฮิต' },
+            { name: 'นมสตรอว์เบอร์รี', brand: 'FamilyMart', desc: 'มีเนื้อสตรอว์เบอร์รี' },
+            { name: 'Souffle Pudding', brand: 'FamilyMart', desc: 'ขนมอันดับ 1 ของแฟมิลี่มาร์ท' },
+        ];
+
+        // สถานะของแอป
+        let activeTab = 'all';
+        const checkedItems = new Set();
+
+        const areas = ['all', 'Ueno', 'Shinjuku', 'Asakusa', 'Kawaguchiko', 'Harajuku', 'Chains', 'Budget Sets'];
+
+        // ฟังก์ชันสร้างปุ่มหมวดหมู่
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = areas.map(area => `
+                <button
+                    onclick="setTab('${area}')"
+                    class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                        activeTab === area ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }"
+                >
+                    ${area.charAt(0).toUpperCase() + area.slice(1)}
+                </button>
+            `).join('');
+        }
+
+        // ฟังก์ชันสร้างรายการร้านอาหาร
+        function renderRestaurants() {
+            const list = document.getElementById('restaurant-list');
+            const filtered = activeTab === 'all' 
+                ? locations 
+                : locations.filter(loc => loc.area === activeTab || loc.area.includes(activeTab));
+            
+            document.getElementById('restaurant-count').innerText = `ร้านอาหาร (${filtered.length})`;
+
+            list.innerHTML = filtered.map(loc => `
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold rounded uppercase">
+                                    ${loc.area}
+                                </span>
+                                <h3 class="font-bold text-slate-800">${loc.name}</h3>
+                            </div>
+                            <p class="text-sm text-slate-500 mt-1">${loc.desc}</p>
+                        </div>
+                        <button 
+                            onclick="openMaps('${loc.maps}')"
+                            class="ml-4 p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors"
+                        >
+                            <i data-lucide="external-link" size="18"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // รีเฟรชไอคอน
+            lucide.createIcons();
+        }
+
+        // ฟังก์ชันสร้างรายการของกิน
+        function renderConveni() {
+            const list = document.getElementById('conveni-list');
+            list.innerHTML = conveniItems.map((item, index) => `
+                <div 
+                    onclick="toggleCheck(${index})"
+                    class="flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                        checkedItems.has(index) ? 'checked-item' : 'bg-slate-50 border-transparent hover:border-slate-200'
+                    }"
+                >
+                    <div class="flex items-center gap-3">
+                        <div class="${checkedItems.has(index) ? 'text-green-600' : 'text-slate-300'}">
+                            <i data-lucide="check-circle-2" size="20"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium ${checkedItems.has(index) ? 'checked-text' : 'text-slate-700'}">
+                                ${item.name}
+                            </p>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">${item.brand} • ${item.desc}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
+        // ฟังก์ชันเปลี่ยนหมวดหมู่
+        window.setTab = (area) => {
+            activeTab = area;
+            renderTabs();
+            renderRestaurants();
+        };
+
+        // ฟังก์ชันติ๊กรายการ
+        window.toggleCheck = (index) => {
+            if (checkedItems.has(index)) {
+                checkedItems.delete(index);
+            } else {
+                checkedItems.add(index);
+            }
+            renderConveni();
+        };
+
+        // ฟังก์ชันเปิด Google Maps
+        window.openMaps = (query) => {
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank');
+        };
+
+        // เริ่มต้นการทำงานเมื่อหน้าโหลดเสร็จ
+        window.onload = () => {
+            renderTabs();
+            renderRestaurants();
+            renderConveni();
+        };
+    </script>
+</body>
+</html>
